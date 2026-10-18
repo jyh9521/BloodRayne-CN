@@ -1,92 +1,67 @@
-# 《BloodRayne: Terminal Cut》（吸血莱恩：终极剪辑版）简体中文汉化包
+# 《吸血莱恩：终极剪辑版》简体中文汉化
 
-这是《BloodRayne: Terminal Cut》简体中文汉化的源码包。目标是：本地删除项目工作文件后，只要有一份干净的游戏安装目录，就能从 GitHub 克隆本仓库并重新构建可发布的汉化目录。
+BloodRayne: Terminal Cut 的简体中文汉化补丁与重建工具，适用于 **Steam 终极剪辑版**。提供英文基准与日文基准两套中文译文，并附带文本、字体和语言组合切换工具。
 
-## 构建要求
+## 当前状态
 
-- Windows 10/11
-- Steam 版 `BloodRayne Terminal Cut`
-- Python 3，且 `python` 在 `PATH` 中
-- Python 包：`Pillow`
-- 可选：Visual Studio 2022 Build Tools，安装 C++ 桌面构建工具。没有 C++ 环境时，脚本会使用 `prebuilt\BloodRayneCNTool.exe`。
+已发布 **v1.0**，发布记录确认已使用英文基准文本完整通关测试；该结论不扩大到所有日文基准与音视频组合。
 
-安装 Python 依赖：
+目标名单底部的人名和部分德语军衔仍不在现有 TSV / POD 导入范围，目标完成提示、任务说明和常规文本已汉化。具体引擎结论见[技术与历史记录](docs/chinese_note.md)。
+
+## 下载 / 使用
+
+[v1.0 发布页](https://github.com/jyh9521/BloodRayne-CN/releases/tag/v1.0)，附件为 `BloodRayne_CN_v1.0.7z`。
+
+退出游戏并备份将被覆盖的同名文件，将发布包内容按包内说明放入游戏目录。默认中文采用英文基准；使用 `zh_cn_tools\BloodRayneCNTool.exe` 可切换文本基准、语音、视频字幕与字体，并编辑译文。玩家工具无需另装 Python 或 .NET。
+
+恢复时还原安装前备份，移除原先不存在的汉化文件；不要把含汉化资源的目录当作干净构建输入。
+
+## 从源码重建
+
+需要 Windows 10/11、干净的 Steam 游戏、Python 3 与 Pillow。可选 Visual Studio 2022 C++ Build Tools；缺少 C++ 环境时使用仓库的预编译玩家工具。
 
 ```powershell
 python -m pip install pillow
+powershell -ExecutionPolicy Bypass -File .\build.ps1 -GameDir "D:\Games\BloodRayne Terminal Cut"
 ```
 
-## 一键构建
+也可省略 `-GameDir` 让脚本自动查找。构建前确认 `JAPANESE.POD` 为原版；必要时先用 Steam 验证文件完整性。
 
-请先确保游戏目录是干净 Steam 原版，尤其是根目录 `JAPANESE.POD` 没有被旧汉化覆盖。最稳妥的方式是先在 Steam 里“验证游戏文件完整性”。
+输出目录为 `dist\BloodRayne_CN_Build`，将其中内容复制到游戏根目录即可测试。主要产物：
 
-在仓库根目录运行：
+- `JAPANESE.POD`：中文文本与字库，默认采用英文基准。
+- `WORLD.POD`：包含 `DE_C1CASTLE` 原游戏缺字幕修复。
+- `zh_cn_tools\`：玩家工具、可编辑 TSV、默认资源和切换用 POD。
+- `SHA256SUMS.txt`：构建产物校验。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\build.ps1
-```
+## 视频字幕
 
-如果脚本没有自动找到游戏目录，显式指定：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -GameDir "C:\Program Files (x86)\Steam\steamapps\common\BloodRayne Terminal Cut"
-```
-
-输出目录：
-
-```text
-dist\BloodRayne_CN_Build
-```
-
-把该目录里的内容复制到游戏根目录覆盖即可测试。根目录默认放的是“基于英文”的中文文本；玩家可用 `zh_cn_tools\BloodRayneCNTool.exe` 在英文基准/日文基准、英文语音/日文语音、英文视频字幕/日文视频字幕之间组合切换。
-
-## 仓库内容
-
-- `translations\text_en.tsv`：基于英文文本的中文译文
-- `translations\text_jp.tsv`：基于日文文本的中文译文
-- `translations\video_subtitles.tsv`：四个有字幕版本的视频字幕译文
-- `tools\`：POD 解包/重打包、文本导入、字库生成、字幕生成等构建脚本
-- `src\tool\`：玩家用 Win32 单文件工具源码
-- `prebuilt\BloodRayneCNTool.exe`：无 C++ 构建环境时使用的预编译玩家工具
-- `subtitles\video\`：视频字幕源稿和整理稿
-- `docs\chinese_note.md`：项目事实、逆向结论、打包流程和历史记录
-- `third_party\`：可选第三方文件说明
-
-## 构建产物
-
-`build.ps1` 会生成：
-
-- `JAPANESE.POD`：中文文本和中文游戏字库，根目录默认为英文基准
-- `WORLD.POD`：修复 `DE_C1CASTLE` 原游戏缺字幕问题
-- `zh_cn_tools\BloodRayneCNTool.exe`：无 Python / .NET 依赖的玩家工具
-- `zh_cn_tools\texts\*.tsv`：玩家工具文本编辑页使用的译文表
-- `zh_cn_tools\defaults\...` / `zh_cn_tools\variants\...`：文本切换和字体切换用 POD
-- `SHA256SUMS.txt`：构建产物校验
-
-如果 `third_party\winmm.dll` 存在，构建脚本会把它复制到输出根目录；否则不会包含该可选兼容 DLL。
-
-## 硬字幕视频
-
-仓库不提交游戏原始 BIK，也不默认提交重压后的 BIK 成品。原因是体积大，而且 BIK 成品由商业游戏视频派生，适合放在 GitHub Release 的可选附件，而不是源码仓库。
-
-字幕源在 `translations\video_subtitles.tsv`。如需重新生成 ASS：
+视频字幕译文保存在 `translations\video_subtitles.tsv`。重新生成 ASS：
 
 ```powershell
 python .\tools\generate_hardsub_ass_from_tsv.py .\translations\video_subtitles.tsv --out-dir .\dist\_work\ass
 ```
 
-如需重压 BIK，需要自行安装 RAD Video Tools，并确保 `radvideo64.exe` 在 `PATH` 中或设置环境变量 `RADVIDEO`。视频重压脚本在：
+硬字幕 BIK 需另行安装 RAD Video Tools，配置 `radvideo64.exe` 或 `RADVIDEO` 后使用 `tools\build_hardsub_bik.py`。一键核心构建不等于已完成视频重压，仓库不提交原始或重压后的完整游戏视频。
 
-```text
-tools\build_hardsub_bik.py
-```
+## 仓库结构与文档
 
-## 已知限制
+| 路径 | 内容 |
+| --- | --- |
+| `translations/` | 英文 / 日文基准译文与视频字幕 TSV |
+| `tools/` | POD、文本导入、字库与字幕工具 |
+| `src/tool/` | Win32 玩家工具源码 |
+| `prebuilt/` | 无 C++ 环境时使用的玩家工具 |
+| `subtitles/video/` | 视频字幕源稿与整理稿 |
+| `docs/` | 格式、验证、重建过程与历史记录 |
 
-- 目标名单界面底部显示的人名和部分德语军衔疑似由 `rayne1.exe` 硬编码或专用逻辑绘制，不在当前可导入的 TSV/POD 文本范围内；目标完成提示、任务说明和常规文本已汉化。
+- [工程说明](docs/README.md)
+- [技术记录](docs/chinese_note.md)
+- [第三方声明](THIRD_PARTY_NOTICES.md)
+- [可选兼容组件说明](third_party/README.md)
 
-## 发布前事项
+## 来源与许可
 
-- 给本项目选择并提交明确的开源许可证，例如 `LICENSE`。
-- 如果发布可选 `winmm.dll`，确认其来源和授权允许再分发。
-- 如果发布硬字幕 BIK，建议作为 GitHub Release 的单独可选包发布。
+原始游戏与商业资源归原权利人所有。本仓库当前未提供项目级 `LICENSE`，源码公开不等同于已授予统一开源许可。
+
+工具界面的 Noto Sans SC 子集字体遵循 SIL OFL。`third_party\winmm.dll` 不默认包含；自行加入前应核实来源与再分发条款。构建时存在该文件才会复制到输出目录。
